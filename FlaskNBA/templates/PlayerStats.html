@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{query}} Stats
+{% endblock %}
+
+{% block content %}
+<!--Bootstrap scripts:-->
+<script src="https://cdn.plot.ly/plotly-latest.min.js" xmlns="http://www.w3.org/1999/html"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+
+<!--Google jquery script:-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!--<script src="jquery.min.js"></script>-->
+
+<style>
+
+    * {
+      box-sizing: border-box;
+
+    }
+
+
+    .myRow::after{
+        content: "";
+        clear: both;
+        display: table;
+
+
+
+    }
+
+    .myColCustom {
+        float: left;
+        width: 49%;
+        padding: 5px;
+        border: 3px solid blue;
+    }
+
+    .myColGraph {
+        float: left;
+        width: 49%;
+        padding: 5px;
+        border: 3px solid #7AD6F4;
+
+    }
+
+    .myColStat {
+        margin-top: 5%;
+        margin-right: 10px;
+        margin-left: 5px;
+        float: left;
+        width: 49%;
+        padding: 5px;
+        border: 3px solid #7AD6F4;
+
+    }
+
+    .radio-graph{
+        width: 50px;
+        height: 50px;
+    }
+    .player-name-header {
+        face: basketball, Times, serif;
+        font-size: 100px;
+    }
+
+    .player-div-header {
+        display: flex;
+        justify-content: center;
+        text-align:center;
+    }
+
+
+</style>
+
+
+
+<!--<h1>{{l1}}</h1>-->
+<!--<h1>{{l2}}</h1>-->
+<!--<div class="dropdown" style = "position: sticky; top: 0;">-->
+<!--  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--    Stats-->
+<!--  </button>-->
+<!--  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">-->
+<!--      <h6 class="dropdown-header">Career Totals</h6>-->
+<!--      {% for i in careerStats %}-->
+<!--        {% if i['Season'] != '' %}-->
+<!--            {% if i['Tm'] != '' %}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png">{{ i['Season'] }} ({{ i['Tm']}})</a>-->
+<!--            {% elif i['Tm'] == '' and i['Lg'] == 'TOT'%}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} ({{i['Lg']}}AL).png"> {{ i['Season'] }} ({{ i['Lg'] }}AL)</a>-->
+<!--            {% elif i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png"> {{ i['Season'] }}</a>-->
+<!--            {% endif %}-->
+<!--        {% elif i['Season'] == '' %}-->
+<!--            {% if i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} Career ({{i['Lg']}}).png"> Career ({{ i['Lg']}})</a>-->
+<!--            {% endif %}-->
+<!--        {% endif %}-->
+<!--      {% endfor %}-->
+<!--      <br>-->
+<!--      <h6 class="dropdown-header">Per Season Totals</h6>-->
+<!--      {% for i in seasonalStats %}-->
+<!--        {% if i['Season'] != '' %}-->
+<!--            {% if i ['Tm'] != '' %}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png"> {{ i['Season'] }} ({{ i['Tm']}}) </a>-->
+<!--            {% else %}-->
+<!--                <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png"> {{ i['Season'] }} </a>-->
+<!--            {% endif %}-->
+<!--        {% endif %}-->
+<!--      {% endfor %}-->
+<!--  </div>-->
+<!--</div>-->
+
+
+
+<br>
+<div class = "player-div-header">
+    <div>
+        <h1 class = "player-name-header"><strong><u>{{query.upper()}}</u></strong></h1>
+        <img src = "{{player_image}}">
+        <small style = "display: block;">Data Retrieved From <a href ="{{player_stats_link}}">Sports Reference</a></small>
+    </div>
+</div>
+
+
+<form method = 'POST' action = {{url_for('player_stats_page')}}>
+    <div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="shooting-tab" data-toggle="tab" href="#shooting" role="tab" aria-controls="shooting" aria-selected="true">Shooting (FT, 2P, 3P)</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="defense-tab" data-toggle="tab" href="#defense" role="tab" aria-controls="defense" aria-selected="false">Defense (DRB, STL, BLK)</a>
+          </li>
+            <li class="nav-item" role="presentation">
+            <a class="nav-link" id="custom-tab" data-toggle="tab" href="#custom" role="tab" aria-controls="custom" aria-selected="false">Custom</a>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="shooting" role="tabpanel" aria-labelledby="shooting-tab">
+                  <div class="btn-group dropup">
+                      <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Seasons
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <h6 class="dropdown-header">Career Totals</h6>
+                          {% for i in careerStats %}
+                            {% if i['Season'] != '' %}
+                                {% if i['Tm'] != '' %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png">{{ i['Season'] }} ({{ i['Tm']}})</a>
+                                {% elif i['Tm'] == '' and i['Lg'] == 'TOT'%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} ({{i['Lg']}}AL).png"> {{ i['Season'] }} ({{ i['Lg'] }}AL)</a>
+                                {% elif i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png"> {{ i['Season'] }}</a>
+                                {% endif %}
+                            {% elif i['Season'] == '' %}
+                                {% if i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} Career ({{i['Lg']}}).png"> Career ({{ i['Lg']}})</a>
+                                {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          <br>
+                          <h6 class="dropdown-header">Per Season Totals</h6>
+                          {% for i in seasonalStats %}
+                            {% if i['Season'] != '' %}
+                                {% if i ['Tm'] != '' %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png"> {{ i['Season'] }} ({{ i['Tm']}}) </a>
+                                {% else %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png"> {{ i['Season'] }} </a>
+                                {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                      </div>
+                  </div>
+                  {% for imagelist1, Radar in zip(imagelist, ShootingRadarChart) %}
+                    <br>
+                    <br><br><hr id = "{{imagelist1}}" style = "background-color: white; text-align: center; width: 50%"><br><br>
+                    <div class = "myRow">
+        <!--<div left = 300px;>-->
+                        <div class = "myColStat">
+
+                            <img src = "{{url_for('static', filename = imagelist1)}}" style = "width: 100%;">
+            <!--<img src = "{{url_for('static', filename = Radar)}}"  width = "800px;" height = "500px;" style = "border: 10px solid blue; float: right;">-->
+                        </div>
+                        <div class = "myColGraph">
+                            <img src = "{{url_for('static', filename = Radar)}}" style = "width: 100%;">
+                        </div>
+                    </div>
+
+                  {% endfor %}
+              </div>
+              <div class="tab-pane fade" id="defense" role="tabpanel" aria-labelledby="defense-tab">
+                  <div class="btn-group dropup">
+                      <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Seasons
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <h6 class="dropdown-header">Career Totals</h6>
+                          {% for i in careerStats %}
+                            {% if i['Season'] != '' %}
+                                {% if i['Tm'] != '' %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png2">{{ i['Season'] }} ({{ i['Tm']}})</a>
+                                {% elif i['Tm'] == '' and i['Lg'] == 'TOT'%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} ({{i['Lg']}}AL).png2"> {{ i['Season'] }} ({{ i['Lg'] }}AL)</a>
+                                {% elif i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png2"> {{ i['Season'] }}</a>
+                                {% endif %}
+                            {% elif i['Season'] == '' %}
+                                {% if i['Tm'] == '' and i['Lg'] != 'TOT' and i['Lg'] != ''%}
+                                    <a class="dropdown-item" href="#Images/ {{query}} Career ({{i['Lg']}}).png2"> Career ({{ i['Lg']}})</a>
+                                {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                          <br>
+                          <h6 class="dropdown-header">Per Season Totals</h6>
+                          {% for i in seasonalStats %}
+                            {% if i['Season'] != '' %}
+                                {% if i ['Tm'] != '' %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}} {{i['Tm']}}.png2"> {{ i['Season'] }} ({{ i['Tm']}}) </a>
+                                {% else %}
+                                    <a class="dropdown-item" href="#Images/ {{query}} {{i['Season']}}.png2"> {{ i['Season'] }} </a>
+                                {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                      </div>
+                  </div>
+                  {% for imagelist2, Radar2 in zip(imagelist, DefenseRadarChart) %}
+                        <br>
+                        <br><br><hr id = "{{imagelist2}}2" style = "background-color: white; text-align: center; width: 50%"><br><br>
+                        <div class = "myRow">
+                            <div class = "myColStat">
+                                <img src = "{{url_for('static', filename = imagelist2)}}"  style = "width: 100%;">
+                            </div>
+                            <div class = "myColGraph">
+                                <img src = "{{url_for('static', filename = Radar2)}}"  style = "width: 100%;">
+                            </div>
+                        </div>
+                  {% endfor %}
+              </div>
+
+<!--              <div class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">-->
+<!--                  <div class = "myRow">-->
+<!--                      <div class = "myColCustom">-->
+<!--                        <h1 style = "text-align: center;">Select Stats You Would Like to Display:</h1>-->
+<!--                        <div style="text-align: center; border: 3px solid yellow;">-->
+<!--                          {% for index, statName in enumerate(all_stats_names) %}-->
+<!--                              <div class="form-check" style="display: inline-block; height: 50px; width: 200px; border: 3px solid red; text-align: start">-->
+<!--                                <input name = "statCheckbox" class="form-check-input select-all" id = "{{statName}}" type="checkbox" style =  "width: 40px; height: 40px;" id="defaultCheck1">-->
+<!--                                <label name = "statCheckbox" class="form-check-label" style = "font-size: 30px; margin-left: 25px;" for="{{statName}}">{{statName}}</label>-->
+<!--                              </div>-->
+<!--                          {% endfor %}-->
+<!--                          <div class="button-labels myCol">-->
+<!--                              <input type="checkbox" id="select-all" name="custom" value="select-all">-->
+<!--                              <label for="select-all">Select or Deselect All</label>-->
+<!--                          </div>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                      <div class="myColCustom">-->
+<!--                          <h1 style = "text-align: center;">Select The Type of Graph: </h1>-->
+<!--                          <div style = "margin-bottom: 15%; border: 5px solid white;">-->
+<!--                              <div class="form-check form-check-inline" style = "display: block;  margin-top: 5%; margin-bottom: 10%; border: 3px solid yellow">-->
+<!--                                <input name="graphCheckbox" class="form-check-input radio-graph" type="radio"  id="inlineRadio1" value="option1">-->
+<!--                                <label class="form-check-label" for="inlineRadio1" style="font-size: 45px;">Radar Chart</label>-->
+<!--                              </div>-->
+<!--                              <div class="form-check form-check-inline" style="display: block; border: 3px solid pink;">-->
+<!--                                <input name="graphCheckbox" class="form-check-input radio-graph" type="radio" n id="inlineRadio2" value="option2">-->
+<!--                                <label class="form-check-label" for="inlineRadio2" style="font-size: 45px;">Bar Graph</label>-->
+<!--                              </div>-->
+<!--                              <div style = "text-align: center;">-->
+<!--                                  <button style = "border-radius: 45px;" type="submit" class="btn btn-success">-->
+<!--                                      <span class = 'player-name-header'>GO!</span>-->
+<!--                                      <span>-->
+<!--                                          <ion-icon name="basketball-outline" style = "font-size: 88px;"></ion-icon>-->
+<!--                                        </span>-->
+<!--                                  </button>-->
+<!--                              </div>-->
+<!--                          </div>-->
+<!--                      </div>-->
+<!--                  </div>-->
+<!--              </div>-->
+            </div>
+    </div>
+</form>
+<!--          {% for index, i in enumerate(all_stats_names) %}-->
+<!--            <div class="form-check">-->
+<!--                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">-->
+<!--                <label class="form-check-label" for="defaultCheck1">{{i}}</label>-->
+<!--                <br>-->
+<!--            </div>-->
+<!--          {% endfor%}-->
+
+              <!--<h3>Select The Type of Graph: </h3>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                <label class="form-check-label" for="inlineRadio1">Radar Chart</label>
+                </div>
+              <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                  <label class="form-check-label" for="inlineRadio2">Bar Graph</label>
+              </div>
+              <br>
+              <button type="button" class="btn btn-success">Does not work yet, don't use!!!</button>-->
+
+
+
+
+
+
+
+
+
+
+
+<!--    <div class="tab-content container" id="myTabContent" >-->
+<!--      <div class="tab-pane fade show active container myRow" id="shooting" role="tabpanel" aria-labelledby="shooting-tab">-->
+<!--          {% for Radar in ShootingRadarChart %}-->
+<!--              <div class = "myCol">-->
+<!--                    <img src = "{{url_for('static', filename = Radar)}}"  width = "800px;" height = "500px;" style = "border: 10px solid blue; margin-top: 3px; margin-bottom: -6px;">-->
+<!--              </div>-->
+<!--          {% endfor %}-->
+
+
+
+<!--    </div>-->
+
+
+
+
+<!--    <div class="tab-content container" id="myTabContent" >-->
+<!--      <div class="tab-pane fade show active container" id="shooting" role="tabpanel" aria-labelledby="shooting-tab">-->
+<!--          {% for Radar in ShootingRadarChart %}-->
+<!--              <div class = "myCol">-->
+<!--                    <img src = "{{url_for('static', filename = Radar)}}"  width = "800px;" height = "500px;" style = "border: 10px solid blue; margin-top: 3px; margin-bottom: -6px;">-->
+<!--              </div>-->
+<!--          {% endfor %}-->
+
+
+
+<!--      <div class="tab-pane fade" id="defense" role="tabpanel" aria-labelledby="defense-tab">-->
+<!--          {% for Radar2 in DefenseRadarChart %}-->
+<!--            <div class = myCol">-->
+<!--                <img src = "{{url_for('static', filename = Radar2)}}"  width = "800px;" height = "500px;" style = "border: 10px solid blue; margin-top: 3px; margin-bottom: -6px;">-->
+<!--            </div>-->
+<!--          {% endfor %}-->
+<!--      </div>-->
+<!--</div>-->
+
+
+
+
+<!--{% for imagelist in imagelist %}-->
+<!--    <div>-->
+<!--&lt;!&ndash;<div left = 300px;>&ndash;&gt;-->
+<!--        <div class = "myCol">-->
+<!--            <h2 style = "text-align: center;" id ="{{imagelist}}">{{imagelist.upper().replace('IMAGES/', '').replace('.PNG', '')}}</h2>-->
+<!--            <img src = "{{url_for('static', filename = imagelist)}}"  width = "50%" height = "50%" style = "border: 10px solid red;">-->
+<!--    &lt;!&ndash;<img src = "{{url_for('static', filename = Radar)}}"  width = "800px;" height = "500px;" style = "border: 10px solid blue; float: right;">&ndash;&gt;-->
+<!--        </div>-->
+<!--    </div>-->
+<!--{% endfor %}-->
+
+
+
+<!--      <div method = "POST" class="tab-pane fade" id="custom" role="tabpanel" aria-labelledby="custom-tab">-->
+<!--          <h3>Select Stats You Would Like to Display:</h3>-->
+<!--          <br>-->
+<!--          <div class="button-labels myCol">-->
+<!--            <input type="checkbox" id="select-all" name="custom" value="select-all">-->
+<!--            <label for="select-all">Select or Deselect All</label>-->
+<!--            <hr style = "background-color: red;">-->
+<!--          </div>-->
+<!--          {% for index, i in enumerate(all_stats_names) %}-->
+<!--            <div class="form-check">-->
+<!--                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">-->
+<!--                <label class="form-check-label" for="defaultCheck1">{{i}}</label>-->
+<!--                <br>-->
+<!--            </div>-->
+<!--          {% endfor%}-->
+<!--          <br>-->
+<!--          <div style = "margin-bottom: 90px;">-->
+<!--              <h3>Select The Type of Graph: </h3>-->
+<!--              <div class="form-check form-check-inline">-->
+<!--                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">-->
+<!--                <label class="form-check-label" for="inlineRadio1">Radar Chart</label>-->
+<!--                </div>-->
+<!--              <div class="form-check form-check-inline">-->
+<!--                  <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">-->
+<!--                  <label class="form-check-label" for="inlineRadio2">Bar Graph</label>-->
+<!--              </div>-->
+<!--              <br>-->
+<!--              <button type="button" class="btn btn-success">Does not work yet, don't use!!!</button>-->
+<!--          </div>-->
+<!--</div>-->
+
+
+<!--      </div>-->
+<!--    </div>-->
+
+<!--</div>-->
+<!--jquery code to allow for multiple checkboxes to be selected and deselected at once-->
+<!-- #custom refers to the custom tab id, and the other 2 refer to the select/deselect buttons' id's (scroll down to see!) -->
+<script type = "text/javascript">
+    $(document).ready(function(){
+        $("#custom #select-all").click(function(){
+           $(".select-all").prop('checked', $ (this).prop('checked'));
+        });
+    });
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}
+
+
+

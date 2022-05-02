@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Upcoming Games
+{% endblock %}
+
+{% block content %}
+
+
+<style xmlns="http://www.w3.org/1999/html">
+    * {
+      box-sizing: border-box;
+    }
+
+    .logos{
+        float: left;
+        width: 33.33%;
+
+        padding: 5px;
+    }
+
+    .myRow::after{
+        content: "";
+        clear: both;
+        display: table;
+        position: relative;
+    }
+    .score-div {
+        text-align: center;
+        background-color: gray;
+        border: 2px solid white;
+        border-radius: 10px 50px;
+        box-shadow: 3px 10px 15px lightblue inset;
+    }
+
+    .no-game-div {
+        text-align: center;
+        background-color: gray;
+        border: 2px solid white;
+        border-radius: 10px 50px;
+        box-shadow: 3px 10px 15px darkgray inset;
+        height: 500px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .backward-header-forward-div {
+        justify-content: center;
+        display: flex;
+    }
+
+    .forward-backward-button{
+        padding: 0;
+        border: none;
+        background: none;
+        color: #1581F2;
+    }
+
+    .disabled-icon{
+        opacity: 50%;
+    }
+
+</style>
+
+
+<div style="margin-top: 1%; text-align: center;">
+    <small style="display: block;">Data Retrieved From <a href = "{{scheduleLink}}">CBS Sports</a></small>
+</div>
+
+<form method = "GET" action={{url_for('upcoming_games')}}>
+    <div class = "backward-header-forward-div">
+        <div>
+            {% if page == 0 %}
+                <button disabled type = "submit"  name = "arrow" value = "1" class = "forward-backward-button">
+                    <ion-icon name="chevron-back-outline" size = "large" class = "disabled-icon"></ion-icon>
+                </button>
+            {% else %}
+                <button type = "submit" name = "arrow" value = "1" class = "forward-backward-button">
+                    <ion-icon name="chevron-back-outline" size = "large"></ion-icon>
+                </button>
+            {% endif %}
+            <h1 style = "display: inline-block"><br>{{date}}</h1>
+            {% if page == 7 %}
+                <button disabled type = "submit" name = "arrow" value = "2" class = "forward-backward-button">
+                    <ion-icon name="chevron-forward-outline" class = "disabled-icon" size = "large"></ion-icon>
+                </button>
+            {% else %}
+                <button type = "submit" name = "arrow" value = "2" class = "forward-backward-button">
+                    <ion-icon name="chevron-forward-outline" size = "large"></ion-icon>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+
+{% if len(winners) == 0 %}
+    <br><br><br><br>
+    <div class = "container no-game-div">
+        <h1 style = "font-size: 100px; color: black;">No Games Listed/Schedule For This Day Yet!</h1>
+    </div>
+{% else %}
+    {% for i, winners in zip(schedule, winners) %}
+        <br>
+        <div class = "container myRow score-div">
+                {% if winners != "N/A" and (i['Away'][0].lower().startswith(winners.lower()) or i['Away'][0].lower() == winners.lower()) %}
+                    <div class = "logos">
+                        <img src="https://c.tenor.com/Ggb25MyFi5kAAAAi/crown-royalty.gif" alt="*Imagine Crown Floating Here*" style="width:50%; height: auto;">
+                        <img src="{{i['Away'][1]}}" style = "width: 100%;">
+                        <h1>{{i['Away'][0]}}</h1>
+                    </div>
+
+                    <div class = "logos">
+                        <br><br><br><br>
+                        <img src="https://lh3.googleusercontent.com/22twqHRiukuiJU9fZP4k4Xri_KkwsTtuBDILX16KD1IzFYautBPNZOlEtQQWG8_x1VxTY4OXOoAwy2M4w-dUL7XyKJEXr5Dx1VJwQNDYlVG1Rkh6Dh-cLQzmhfhsYj_DBUsSSxSf9w=w2400" alt="*Imagine Vs Image Here*" style="width: 100%;">
+                        <h1>{{i['Score'][0]}}</h1>
+                    </div>
+
+                    <div class="logos">
+                        <img src = "https://i.gifer.com/NR7U.gif" style="width:39%; height: auto;">
+                        <img src="{{i['Home'][1]}}" style= "width: 100%;">
+                        <h1> {{i['Home'][0]}} </h1>
+                    </div>
+
+                {% elif winners != "N/A" and (i['Home'][0].lower().startswith(winners.lower()) or i['Home'][0].lower() == winners.lower()) %}
+                    <div class = "logos">
+                        <img src="https://c.tenor.com/Ggb25MyFi5kAAAAi/crown-royalty.gif" alt="*Imagine Crown Floating Here*" style="width:50%; height: auto;">
+                        <img src="{{i['Home'][1]}}" style = "width: 100%;">
+                        <h1>{{i['Home'][0]}}</h1>
+                    </div>
+                    <div class = "logos">
+                        <br><br><br><br>
+                        <img src="https://lh3.googleusercontent.com/22twqHRiukuiJU9fZP4k4Xri_KkwsTtuBDILX16KD1IzFYautBPNZOlEtQQWG8_x1VxTY4OXOoAwy2M4w-dUL7XyKJEXr5Dx1VJwQNDYlVG1Rkh6Dh-cLQzmhfhsYj_DBUsSSxSf9w=w2400" alt="*Imagine Vs Image Here*" style="width: 100%;">
+                            <h1>{{i['Score'][0]}}</h1>
+                    </div>
+                    <div class="logos">
+                        <img src = "https://i.gifer.com/NR7U.gif" style="width:39%; height: auto;">
+                        <img src="{{i['Away'][1]}}" style= "width: 100%;">
+                        <h1> {{i['Away'][0]}} </h1>
+                    </div>
+
+                {% elif winners == "N/A" %}
+                    <div class = "logos">
+                         <img src="{{i['Away'][1]}}" style = "width: 100%;">
+                         <h1>{{i['Away'][0]}}</h1>
+                     </div>
+                    <div class = "logos">
+                        <br><br><br><br>
+                        <img src="https://lh3.googleusercontent.com/22twqHRiukuiJU9fZP4k4Xri_KkwsTtuBDILX16KD1IzFYautBPNZOlEtQQWG8_x1VxTY4OXOoAwy2M4w-dUL7XyKJEXr5Dx1VJwQNDYlVG1Rkh6Dh-cLQzmhfhsYj_DBUsSSxSf9w=w2400" alt="*Imagine Vs Image Here*" style="width: 100%;">
+                        {% if 'Q.' in i['Score'][0] %}
+                            <h1>{{i['Tipoff Time'][0]}}</h1>
+                            <h1>@{{i['Location'][0]}}</h1>
+                            <h1>{{i['Score'][0]}}</h1>
+                        {% elif 'Final' in i['Score'][0] %}
+                            <h1>{{i['Score'][0]}}</h1>
+                        {% else %}
+                            <h1>{{i['Tipoff Time'][0]}}</h1>
+                            <h1>@{{i['Location'][0]}}</h1>
+                        {% endif %}
+                    </div>
+                    <div class="logos">
+                        <img src="{{i['Home'][1]}}" style= "width: 100%;">
+                        <h1> {{i['Home'][0]}} </h1>
+                    </div>
+                {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+
+
+
+{% endblock %}

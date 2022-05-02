@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block content %}
+<style>
+
+
+    .swish-button {
+        float: right;
+        display: inline-block;
+        border: none;
+        outline: none;
+        border-radius: 20px;
+        overflow: hidden;
+        font-family: 'Quicksand', sans-serif;
+        font-size: 30px;
+    }
+
+    .parent-center {
+        position: relative;
+    }
+
+    .child-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+       transform: translate(-50%, -50%);
+    }
+
+
+
+    input[type='text']{
+       border-radius: 25px;
+       background-image: url(basketball-outline.svg);
+       background-position: 15px;
+    }
+
+
+</style>
+
+
+
+
+{% if no_player_found %}
+    <div style = 'text-align: center;' class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>{{no_player_found}}</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endif %}
+<div class="input-bar">
+    <div class = "input-bar-item width100">
+        <form action= "/PlayerStats" method = "POST">
+            <div class = "child-center">
+                <img style = "color: red; filter: opacity(0.5) drop-shadow(0 0 0 orange);"src = "https://lh3.googleusercontent.com/nJNVpFO-HKxBCKJZD3bw24yXE6M9NftxV5aZDI2dqDdxa2GBJ88S9fAjST5g_86o_Mg5eZtru3xAxc04L3Hu1niiPJHsg83ORrTlLpz0FZMQfAS9bjLAfUP5itW1aLD9r0XPjgtaqg=w2400">
+                <div class = "input-group;">
+                    <input class = "form-control width100" style = "width: 100%; display: inline-block;" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder = "Kobe Bryant" name = "player_name">
+                    <span class = "input-group-btn">
+                     <small id="emailHelp" style = "float: inline-start;" class="form-text text-muted">Get the stats of your favorite NBA & ABA players!</small>
+                        <button type="submit" class="btn btn-primary btn-info swish-button">
+                            <span>GO!</span>
+                            <span>
+                                <ion-icon name="basketball-outline" style = "font-size: 28px;"></ion-icon>
+                            </span>
+                        </button>
+                    </span>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
