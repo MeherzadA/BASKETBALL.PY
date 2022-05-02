@@ -3,4 +3,6 @@ A basketball-lower based website that allows you to search for any player that h
 
 The website also includes a full NBA game schedule for the entire week!
 
-Utilized the flask python web framework for this project!
+Utilized the flask web framework for this project, and was able to use Python to help with the backend development!
+
+Used HTML & CSS + Bootstrap to help with the frontend work!
