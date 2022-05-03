@@ -10,3 +10,6 @@ Utilized the flask web framework for this project, and was able to use Python to
 Used HTML & CSS + Bootstrap to help with the frontend work!
 
 Video demo of the website: 
+
+https://user-images.githubusercontent.com/97406502/166577753-1288566f-c396-4f5c-be08-b21e9bae2ffb.mp4
+
