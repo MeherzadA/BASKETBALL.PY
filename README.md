@@ -15,7 +15,7 @@ Front Page to Search for Players:
 
 
 
-Video demo of the website: 
+Quick video demo of the website: 
 
 https://user-images.githubusercontent.com/97406502/166578184-f2d2e8cc-0ad8-472d-a124-c67f1a44675f.mp4
 
